@@ -1,0 +1,26 @@
+{
+  "entities": {
+    "Ticket": {
+      "title": "Ticket",
+      "description": "A ticket issued for the Mecisan Bhajan Club event",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique ticket ID" },
+        "customerName": { "type": "string", "description": "Name of the customer" },
+        "mobileNumber": { "type": "string", "description": "Mobile number of the customer" },
+        "ticketCount": { "type": "number", "description": "Number of tickets purchased" },
+        "amountPaid": { "type": "number", "description": "Total amount paid" },
+        "status": { "type": "string", "enum": ["issued", "checked"], "description": "Status of the ticket" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Timestamp when ticket was created" },
+        "checkedAt": { "type": "string", "format": "date-time", "description": "Timestamp when ticket was checked" }
+      },
+      "required": ["id", "customerName", "mobileNumber", "ticketCount", "amountPaid", "status", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/tickets/{ticketId}": {
+      "schema": "Ticket",
+      "description": "Collection of issued tickets"
+    }
+  }
+}

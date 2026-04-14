@@ -1,0 +1,6 @@
+{
+  "name": "Marshian Bhajan Club Ticket System",
+  "description": "A secure portal for issuing and verifying club event tickets with QR code integration.",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": []
+}

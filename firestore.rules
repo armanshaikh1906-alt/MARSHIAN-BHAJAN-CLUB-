@@ -1,0 +1,55 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: tickets
+    // Document ID: {ticketId}
+    // Fields:
+    //   - id: string (required) - Unique ticket ID
+    //   - customerName: string (required)
+    //   - mobileNumber: string (required)
+    //   - ticketCount: number (required)
+    //   - amountPaid: number (required)
+    //   - status: string (required, enum: ['issued', 'checked'])
+    //   - createdAt: timestamp (required)
+    //   - checkedAt: timestamp (optional)
+    //
+    // ===============================================================
+
+    // Helper Functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && 
+             request.auth.token.email == "marshian@admin.com";
+    }
+
+    function isValidTicket(data) {
+      return data.keys().hasAll(['id', 'customerName', 'mobileNumber', 'ticketCount', 'amountPaid', 'status', 'createdAt']) &&
+             data.id is string && data.id.size() > 0 && data.id.size() < 20 &&
+             data.customerName is string && data.customerName.size() > 0 && data.customerName.size() < 100 &&
+             data.mobileNumber is string && data.mobileNumber.size() >= 10 && data.mobileNumber.size() <= 15 &&
+             data.ticketCount is number && data.ticketCount > 0 &&
+             data.amountPaid is number && data.amountPaid >= 0 &&
+             data.status in ['issued', 'checked'] &&
+             data.createdAt is timestamp;
+    }
+
+    match /tickets/{ticketId} {
+      // Public access as requested by removing login feature
+      allow read: if true;
+      allow create: if isValidTicket(request.resource.data);
+      allow update: if isValidTicket(request.resource.data) && 
+                    // Ensure core fields don't change except status and checkedAt
+                    request.resource.data.id == resource.data.id &&
+                    request.resource.data.createdAt == resource.data.createdAt;
+    }
+  }
+}
